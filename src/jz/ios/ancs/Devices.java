@@ -3,8 +3,12 @@ package jz.ios.ancs;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.android.glass.app.Card;
+import com.google.android.glass.widget.CardScrollAdapter;
+import com.google.android.glass.widget.CardScrollView;
+
 import jz.ancs.parse.ANCSGattCallback;
-import android.app.ListActivity;
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothAdapter.LeScanCallback;
 import android.bluetooth.BluetoothDevice;
@@ -14,20 +18,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-public class Devices extends ListActivity {
+public class Devices extends Activity {
 	public static final String TAG = "ble";
 	
 	public static final String PREFS_NAME = "MyPrefsFile";
@@ -36,43 +36,10 @@ public class Devices extends ListActivity {
 	public static final String BleAutoKey="ble_auto_connect";
 	private BluetoothAdapter mBluetoothAdapter;
 	private boolean mLEscaning = false;
-	private Button mScanButton;
-	private CheckBox mAutoCB;
 	private List<BluetoothDevice> mList = new ArrayList<BluetoothDevice>();
-	private BaseAdapter mListAdapter = new BaseAdapter() {
-
-		@Override
-		public View getView(int i, View arg1, ViewGroup arg2) {
-			TextView tv = (TextView) arg1;
-			if (null == tv) {
-				tv = new TextView(Devices.this);
-				tv.setPadding(10, 10, 10, 10);
-				tv.setTextSize(20);
-			}
-			BluetoothDevice dev = mList.get(i);
-			String name = dev.getName();
-			if (TextUtils.isEmpty(name)) {
-				name = dev.getAddress();
-			}
-			tv.setText(name);
-			return tv;
-		}
-
-		@Override
-		public long getItemId(int arg0) {
-			return 0;
-		}
-
-		@Override
-		public Object getItem(int arg0) {
-			return null;
-		}
-
-		@Override
-		public int getCount() {
-			return mList.size();
-		}
-	};
+	private List<Card> bluetoothCards = new ArrayList<Card>();
+    private CardScrollView mBluetoothCardScrollView;
+    private BluetoothCardScrollAdapter mBluetoothCardScrollAdapter;
 	
 	private LeScanCallback mLEScanCallback = new LeScanCallback() {
 
@@ -91,7 +58,13 @@ public class Devices extends ListActivity {
 					}
 					if (!found) {
 						mList.add(device);
-						mListAdapter.notifyDataSetChanged();
+						
+						Card card = new Card(getApplicationContext());
+						card.setText(device.getName());
+						card.setFootnote(device.getAddress());
+						bluetoothCards.add(card);
+						
+						mBluetoothCardScrollAdapter.notifyDataSetChanged();
 					}
 				}
 			});
@@ -101,25 +74,16 @@ public class Devices extends ListActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_devices);
-		mScanButton = (Button)findViewById(R.id.scan);
-		mAutoCB = (CheckBox) findViewById(R.id.autoconnect);
-		mScanButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				if(!mLEscaning){
-					mList.clear();
-					scan(true);
-				}else{
-					scan(false);
-				}
-			}
-		});
+		
+		Card card = new Card(getApplicationContext());
+		card.setText("Discovering Bluetooth");
+		setContentView(card.getView());
+		
 		PackageManager pm = getPackageManager();
 		boolean support = pm.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
 //		log(" BLE support: "+ support);
 		if (!support) {
-			Toast.makeText(this, "此设备不支持 BLE", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "æ­¤è®¾å¤‡ä¸�æ”¯æŒ� BLE", Toast.LENGTH_SHORT).show();
 			finish();
 			return;
 		}
@@ -144,23 +108,30 @@ public class Devices extends ListActivity {
 			finish();
 			return;
 		}
+		
+		mBluetoothCardScrollView = new CardScrollView(this);
+		mBluetoothCardScrollAdapter = new BluetoothCardScrollAdapter();
+		mBluetoothCardScrollView.setAdapter(mBluetoothCardScrollAdapter);
+		mBluetoothCardScrollView.activate();
+		
+		mBluetoothCardScrollView.setOnItemClickListener(mBluetoothClickedHandler);
+		
+	    setContentView(mBluetoothCardScrollView);
+	        
 		scan(true);
-		getListView().setAdapter(mListAdapter);
 	}
 	
 	void scan(final boolean enable) {
 		if (enable) {
 			// Stops scanning after a pre-defined scan period.
-			log("开始扫描 BLE 设备...");
+			log("BLE scanning started...");
 			mLEscaning = true;
 			mBluetoothAdapter.startLeScan(mLEScanCallback);
-			mScanButton.setText(R.string.stop_scan);
 		} else {
 			if (mLEscaning) {
 				mBluetoothAdapter.stopLeScan(mLEScanCallback);
 				mLEscaning = false;
-				mScanButton.setText(R.string.scan);
-				log("停止扫描");
+				log("BLE scanning stopped");
 			}
 		}
 	}
@@ -170,31 +141,19 @@ public class Devices extends ListActivity {
 		scan(false);
 		super.onDestroy();
 	}
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.devices, menu);
-		return true;
-	}
 	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch(item.getItemId()){
-		case R.id.scan:
-			mList.clear();
-			scan(true);
-			break;
-		}
-		return true;
-	}
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		BluetoothDevice dev = mList.get(position);
-		scan(false);
-		Intent intent = new Intent(this,  BLEConnect.class);
-		intent.putExtra("addr", dev.getAddress());
-		intent.putExtra("auto", mAutoCB.isChecked());
-		startActivity(intent);
-		finish();
-	}
+	private OnItemClickListener mBluetoothClickedHandler = new OnItemClickListener() {
+	    public void onItemClick(AdapterView parent, View v, int position, long id)
+	    {
+	    	BluetoothDevice dev = mList.get(position);
+			scan(false);
+			Intent intent = new Intent(getApplicationContext(),  BLEConnect.class);
+			intent.putExtra("addr", dev.getAddress());
+			intent.putExtra("auto", true);
+			startActivity(intent);
+			finish();
+	    }
+	};
 
 	static void log(String s){
 		Log.d(TAG, "[BLE_ancs] " + s);
@@ -205,4 +164,45 @@ public class Devices extends ListActivity {
 	static void loge(String s){
 		Log.e(TAG,  s);
 	}
+	
+	private class BluetoothCardScrollAdapter extends CardScrollAdapter {
+
+        @Override
+        public int getPosition(Object item) {
+            return bluetoothCards.indexOf(item);
+        }
+
+        @Override
+        public int getCount() {
+            return bluetoothCards.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return bluetoothCards.get(position);
+        }
+
+        /**
+         * Returns the amount of view types.
+         */
+        @Override
+        public int getViewTypeCount() {
+            return Card.getViewTypeCount();
+        }
+
+        /**
+         * Returns the view type of this card so the system can figure out
+         * if it can be recycled.
+         */
+        @Override
+        public int getItemViewType(int position){
+            return bluetoothCards.get(position).getItemViewType();
+        }
+
+        @Override
+        public View getView(int position, View convertView,
+                ViewGroup parent) {
+            return  bluetoothCards.get(position).getView(convertView, parent);
+        }
+    }
 }
