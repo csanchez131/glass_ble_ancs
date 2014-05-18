@@ -94,7 +94,8 @@ public class Devices extends Activity {
 		    startActivityForResult(enableBtIntent, 1);
 		}
 		mList.clear();
-		SharedPreferences sp=this.getSharedPreferences(PREFS_NAME, 0);
+		
+		/*SharedPreferences sp=this.getSharedPreferences(PREFS_NAME, 0);
 		int ble_state=sp.getInt(BleStateKey, 0);
 		log("read ble state : "+ble_state);
 		if(ANCSGattCallback.BleDisconnect != ble_state){
@@ -107,7 +108,7 @@ public class Devices extends Activity {
 			startActivity(intent);
 			finish();
 			return;
-		}
+		}*/
 		
 		mBluetoothCardScrollView = new CardScrollView(this);
 		mBluetoothCardScrollAdapter = new BluetoothCardScrollAdapter();
@@ -149,7 +150,7 @@ public class Devices extends Activity {
 			scan(false);
 			Intent intent = new Intent(getApplicationContext(),  BLEConnect.class);
 			intent.putExtra("addr", dev.getAddress());
-			intent.putExtra("auto", true);
+			intent.putExtra("auto", false);
 			startActivity(intent);
 			finish();
 	    }
