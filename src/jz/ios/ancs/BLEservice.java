@@ -1,5 +1,7 @@
 package jz.ios.ancs;
 
+import com.google.android.glass.app.Card;
+
 import jz.ancs.parse.ANCSGattCallback;
 import jz.ancs.parse.ANCSGattCallback.StateListener;
 import jz.ancs.parse.ANCSParser;
@@ -20,6 +22,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 public class BLEservice extends Service implements ANCSParser.onIOSNotification{
 	private static final String TAG="BLEservice]]";
@@ -106,12 +109,9 @@ public class BLEservice extends Service implements ANCSParser.onIOSNotification{
 	//** when ios notification changed
 	@Override
 	public void onIOSNotificationAdd(IOSNotification noti) {
-		NotificationCompat.Builder build = new
-		NotificationCompat.Builder(this)
-		.setSmallIcon(R.drawable.ic_launcher)
-		.setContentTitle(noti.title)
-		.setContentText(noti.message);		
-		((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).notify(noti.uid, build.build());
+		Devices.log("Notification");
+		Devices.log(noti.title);
+		Devices.log(noti.message);
 	}
 
 	@Override
