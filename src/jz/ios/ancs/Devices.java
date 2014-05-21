@@ -83,7 +83,7 @@ public class Devices extends Activity {
 		boolean support = pm.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
 //		log(" BLE support: "+ support);
 		if (!support) {
-			Toast.makeText(this, "æ­¤è®¾å¤‡ä¸�æ”¯æŒ� BLE", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "Ã¦Â­Â¤Ã¨Â®Â¾Ã¥Â¤â€¡Ã¤Â¸ï¿½Ã¦â€�Â¯Ã¦Å’ï¿½ BLE", Toast.LENGTH_SHORT).show();
 			finish();
 			return;
 		}
@@ -146,8 +146,10 @@ public class Devices extends Activity {
 	private OnItemClickListener mBluetoothClickedHandler = new OnItemClickListener() {
 	    public void onItemClick(AdapterView parent, View v, int position, long id)
 	    {
-	    	BluetoothDevice dev = mList.get(position);
 			scan(false);
+	    	
+	    	BluetoothDevice dev = mList.get(position);
+
 			Intent intent = new Intent(getApplicationContext(),  BLEConnect.class);
 			intent.putExtra("addr", dev.getAddress());
 			intent.putExtra("auto", false);

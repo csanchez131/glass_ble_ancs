@@ -1,6 +1,8 @@
 package jz.ios.ancs;
 
 import com.google.android.glass.app.Card;
+import com.google.android.glass.timeline.LiveCard;
+import com.google.android.glass.timeline.LiveCard.PublishMode;
 
 import jz.ancs.parse.ANCSGattCallback;
 import jz.ancs.parse.ANCSGattCallback.StateListener;
@@ -8,6 +10,7 @@ import jz.ancs.parse.ANCSParser;
 import jz.ancs.parse.IOSNotification;
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -23,8 +26,14 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.RemoteViews;
 
 public class BLEservice extends Service implements ANCSParser.onIOSNotification{
+	private static final String LIVE_CARD_TAG = "LiveCardDemo";
+
+    private LiveCard mLiveCard;
+    private RemoteViews mLiveCardView;
+	
 	private static final String TAG="BLEservice]]";
 	private final IBinder mBinder = new MyBinder();
 	private ANCSParser mANCSHandler;
@@ -79,12 +88,40 @@ public class BLEservice extends Service implements ANCSParser.onIOSNotification{
 		registerReceiver(mBtOnOffReceiver, filter);
 		Devices.log(TAG+"onCreate()");
 	}
+	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		if (intent != null) {
 			mAuto = intent.getBooleanExtra("auto", true);
 			addr = intent.getStringExtra("addr");
 		}
+		
+		if (mLiveCard == null) {
+			
+			// Get an instance of a live card
+	        mLiveCard = new LiveCard(this, LIVE_CARD_TAG);
+	
+	        // Inflate a layout into a remote view
+	        mLiveCardView = new RemoteViews(getPackageName(), R.layout.notif_card);
+	        
+	        // Set default values
+	        mLiveCardView.setTextViewText(R.id.notif_subject, "title");
+	        mLiveCardView.setTextViewText(R.id.notif_message, "message");
+	        mLiveCardView.setTextViewText(R.id.notif_source, "date");
+	        
+	        // Set up the live card's action with a pending intent
+            // to show a menu when tapped
+            Intent menuIntent = new Intent(this, MenuActivity.class);
+            menuIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
+                Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            mLiveCard.setAction(PendingIntent.getActivity(
+                this, 0, menuIntent, 0));
+	        
+	        // Publish the live card
+            mLiveCard.publish(PublishMode.REVEAL);
+        
+		}
+		
 		Devices.log(TAG+"onStartCommand() flags="+flags+",stardId="+startId);
 		return startId;
 	}
@@ -112,6 +149,13 @@ public class BLEservice extends Service implements ANCSParser.onIOSNotification{
 		Devices.log("Notification");
 		Devices.log(noti.title);
 		Devices.log(noti.message);
+		
+		mLiveCardView.setTextViewText(R.id.notif_subject, noti.title);
+        mLiveCardView.setTextViewText(R.id.notif_message, noti.message);
+        mLiveCardView.setTextViewText(R.id.notif_source, noti.date);
+        
+        // Always call setViews() to update the live card's RemoteViews.
+        mLiveCard.setViews(mLiveCardView);
 	}
 
 	@Override
