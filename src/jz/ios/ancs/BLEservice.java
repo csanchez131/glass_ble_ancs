@@ -1,6 +1,7 @@
 package jz.ios.ancs;
 
 import com.google.android.glass.app.Card;
+import com.google.android.glass.media.Sounds;
 import com.google.android.glass.timeline.LiveCard;
 import com.google.android.glass.timeline.LiveCard.PublishMode;
 
@@ -20,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences.Editor;
+import android.media.AudioManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -117,6 +119,9 @@ public class BLEservice extends Service implements ANCSParser.onIOSNotification{
             mLiveCard.setAction(PendingIntent.getActivity(
                 this, 0, menuIntent, 0));
 	        
+            // Always call setViews() to update the live card's RemoteViews.
+            mLiveCard.setViews(mLiveCardView);
+            
 	        // Publish the live card
             mLiveCard.publish(PublishMode.REVEAL);
         
@@ -162,6 +167,9 @@ public class BLEservice extends Service implements ANCSParser.onIOSNotification{
         
         // Always call setViews() to update the live card's RemoteViews.
         mLiveCard.setViews(mLiveCardView);
+        
+        AudioManager audio = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        audio.playSoundEffect(Sounds.SUCCESS);
 	}
 
 	@Override
