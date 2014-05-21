@@ -134,6 +134,12 @@ public class BLEservice extends Service implements ANCSParser.onIOSNotification{
 		Editor e =getSharedPreferences(Devices.PREFS_NAME, 0).edit();
 		e.putInt(Devices.BleStateKey, ANCSGattCallback.BleDisconnect);
 		e.commit();
+
+		if (mLiveCard != null && mLiveCard.isPublished()) {
+			mLiveCard.unpublish();
+	        mLiveCard = null;
+	    }
+		
 		super.onDestroy();
 	}
 
