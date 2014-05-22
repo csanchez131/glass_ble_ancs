@@ -15,7 +15,6 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,9 +22,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.Toast;
+import com.google.glass.widget.SliderView;
+
 
 public class Devices extends Activity {
 	public static final String TAG = "ble";
@@ -88,9 +87,9 @@ public class Devices extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		Card card = new Card(getApplicationContext());
-		card.setText("Discovering Bluetooth LE devices");
-		setContentView(card.getView());
+		setContentView(R.layout.searching_ble);
+		SliderView mIndeterm = (SliderView) findViewById(R.id.indeterm_slider);
+		mIndeterm.startIndeterminate();
 		
 		PackageManager pm = getPackageManager();
 		boolean support = pm.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
@@ -108,26 +107,10 @@ public class Devices extends Activity {
 		}
 		mList.clear();
 		
-		/*SharedPreferences sp=this.getSharedPreferences(PREFS_NAME, 0);
-		int ble_state=sp.getInt(BleStateKey, 0);
-		log("read ble state : "+ble_state);
-		if(ANCSGattCallback.BleDisconnect != ble_state){
-			boolean auto = sp.getBoolean(BleAutoKey, true);
-			String addr = sp.getString(BleAddrKey, "");
-			Intent intent = new Intent(this,  BLEConnect.class);
-			intent.putExtra("addr", addr);
-			intent.putExtra("auto", auto);
-			intent.putExtra("state", ble_state);
-			startActivity(intent);
-			finish();
-			return;
-		}*/
-		
 		mBluetoothCardScrollView = new CardScrollView(this);
 		mBluetoothCardScrollAdapter = new BluetoothCardScrollAdapter();
 		mBluetoothCardScrollView.setAdapter(mBluetoothCardScrollAdapter);
 		mBluetoothCardScrollView.activate();
-		
 		mBluetoothCardScrollView.setOnItemClickListener(mBluetoothClickedHandler);
 			        
 		scan(true);

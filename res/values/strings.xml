@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">BLE_ancs</string>
+    <string name="app_name">ANCS Glass</string>
+    <string name="searching_ble">Searching for iPhones</string>
+    <string name="searching_ble_tip">Ensure Bluetooth is enabled and broadcasting ANCS</string>
+    
     <string name="auto">自动连接</string>
     <string name="scan">重新扫描</string>
     <string name="stop_scan">停止扫描</string>
