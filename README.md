@@ -9,4 +9,5 @@ Google Glass GDK app to receive iPhone notifications using Apple Notification Ce
 - Somewhat working
 - Creates Bluetooth LE pairing with iPhone
 - Connects to ANCS via BluetoothGATT (requires app restart after pairing)
-- Receives ANCS notifications (writes to log, Google removed TimelineManager to add static card to timeline in XE16 >_<)
+- Receives ANCS notifications
+- Publishes a LiveCard that shows the latest notification (until Google restores TimelineManager for static cards)
