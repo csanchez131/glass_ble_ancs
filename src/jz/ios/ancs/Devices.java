@@ -40,25 +40,38 @@ public class Devices extends Activity {
 	private List<Card> bluetoothCards = new ArrayList<Card>();
     private CardScrollView mBluetoothCardScrollView;
     private BluetoothCardScrollAdapter mBluetoothCardScrollAdapter;
+    private boolean bluetoothCardScrollViewVisible = false;
 	
 	private LeScanCallback mLEScanCallback = new LeScanCallback() {
 
 		@Override
-		public void onLeScan(final BluetoothDevice device, int rssi,
-				byte[] scanRecord) {
+		public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
 					boolean found = false;
 					for (BluetoothDevice dev : mList) {
+						// verify if this is a new BLE device
 						if (dev.getAddress().equals(device.getAddress())) {
 							found = true;
 							break;
 						}
 					}
+					
+					// if new BLE device
 					if (!found) {
+						
+						// show BLE cards
+						if (!bluetoothCardScrollViewVisible)
+						{
+							setContentView(mBluetoothCardScrollView);
+							bluetoothCardScrollViewVisible = true;
+						}
+						
+						// add to list of BLE devices
 						mList.add(device);
 						
+						// add device to BLE cards
 						Card card = new Card(getApplicationContext());
 						card.setText(device.getName());
 						card.setFootnote(device.getAddress());
@@ -76,7 +89,7 @@ public class Devices extends Activity {
 		super.onCreate(savedInstanceState);
 		
 		Card card = new Card(getApplicationContext());
-		card.setText("Discovering Bluetooth");
+		card.setText("Discovering Bluetooth LE devices");
 		setContentView(card.getView());
 		
 		PackageManager pm = getPackageManager();
@@ -116,9 +129,7 @@ public class Devices extends Activity {
 		mBluetoothCardScrollView.activate();
 		
 		mBluetoothCardScrollView.setOnItemClickListener(mBluetoothClickedHandler);
-		
-	    setContentView(mBluetoothCardScrollView);
-	        
+			        
 		scan(true);
 	}
 	
@@ -141,6 +152,18 @@ public class Devices extends Activity {
 	protected void onDestroy() {
 		scan(false);
 		super.onDestroy();
+	}
+	
+	@Override
+	protected void onPause() {
+		scan(false);
+		super.onPause();
+	}
+	
+	@Override
+	protected void onResume() {
+		scan(true);
+		super.onResume();
 	}
 	
 	private OnItemClickListener mBluetoothClickedHandler = new OnItemClickListener() {
