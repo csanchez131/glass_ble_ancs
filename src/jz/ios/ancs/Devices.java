@@ -87,45 +87,51 @@ public class Devices extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		// check if BLE is supported, all Glass should have it
+		PackageManager pm = getPackageManager();
+		boolean support = pm.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
+		if (!support) {
+			Toast.makeText(this, R.string.error_ble_not_supported, Toast.LENGTH_SHORT).show();
+			finish();
+			return;
+		}
+		
+		// put up searching for BLE screen
 		setContentView(R.layout.searching_ble);
 		SliderView mIndeterm = (SliderView) findViewById(R.id.indeterm_slider);
 		mIndeterm.startIndeterminate();
 		
-		PackageManager pm = getPackageManager();
-		boolean support = pm.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE);
-//		log(" BLE support: "+ support);
-		if (!support) {
-			Toast.makeText(this, "Ã¦Â­Â¤Ã¨Â®Â¾Ã¥Â¤â€¡Ã¤Â¸ï¿½Ã¦â€�Â¯Ã¦Å’ï¿½ BLE", Toast.LENGTH_SHORT).show();
-			finish();
-			return;
-		}
+		// initialize BluetoothManager, get adapter, ensure enabled
 		BluetoothManager mgr = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
 		mBluetoothAdapter = mgr.getAdapter();
 		if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
 		    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
 		    startActivityForResult(enableBtIntent, 1);
 		}
+		
+		// clear list of BLE devices
 		mList.clear();
 		
+		// set up scroll view of Bluetooth device cards
 		mBluetoothCardScrollView = new CardScrollView(this);
 		mBluetoothCardScrollAdapter = new BluetoothCardScrollAdapter();
 		mBluetoothCardScrollView.setAdapter(mBluetoothCardScrollAdapter);
 		mBluetoothCardScrollView.activate();
 		mBluetoothCardScrollView.setOnItemClickListener(mBluetoothClickedHandler);
-			        
+		
+		// start scanning BLE
 		scan(true);
 	}
 	
 	void scan(final boolean enable) {
 		if (enable) {
-			// Stops scanning after a pre-defined scan period.
-			log("BLE scanning started...");
 			mLEscaning = true;
 			mBluetoothAdapter.startLeScan(mLEScanCallback);
+			log("BLE scanning started...");
 		} else {
 			if (mLEscaning) {
-				mBluetoothAdapter.stopLeScan(mLEScanCallback);
 				mLEscaning = false;
+				mBluetoothAdapter.stopLeScan(mLEScanCallback);
 				log("BLE scanning stopped");
 			}
 		}
@@ -149,13 +155,17 @@ public class Devices extends Activity {
 		super.onResume();
 	}
 	
+	// when clicked on a bluetooth device card
 	private OnItemClickListener mBluetoothClickedHandler = new OnItemClickListener() {
 	    public void onItemClick(AdapterView parent, View v, int position, long id)
 	    {
+	    	// stop scanning
 			scan(false);
 	    	
+			// get BLE device
 	    	BluetoothDevice dev = mList.get(position);
 
+	    	// load connect class
 			Intent intent = new Intent(getApplicationContext(),  BLEConnect.class);
 			intent.putExtra("addr", dev.getAddress());
 			intent.putExtra("auto", false);
