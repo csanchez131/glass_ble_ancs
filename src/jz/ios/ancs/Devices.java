@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.android.glass.app.Card;
+import com.google.android.glass.media.Sounds;
 import com.google.android.glass.widget.CardScrollAdapter;
 import com.google.android.glass.widget.CardScrollView;
 
@@ -16,6 +17,7 @@ import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -166,6 +168,10 @@ public class Devices extends Activity {
 	    	
 			// get BLE device
 	    	BluetoothDevice dev = mBluetoothList.get(position);
+	    	
+	    	// play tapped sound
+	    	AudioManager audio = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+	        audio.playSoundEffect(Sounds.TAP);
 
 	    	// load connect class
 			Intent intent = new Intent(getApplicationContext(),  BLEConnect.class);
