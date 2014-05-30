@@ -15,7 +15,6 @@
         <!-- Put widgets for the left column inside this RelativeLayout. -->
 
         <ImageView
-            android:id="@+id/imageView1"
             android:layout_width="60dip"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"

@@ -1,22 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
-
-    <TextView
-        android:id="@+id/notif_source"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    >
     
-     <TextView
-        android:id="@+id/notif_subject"
+    <RelativeLayout 
+        android:layout_width="match_parent"
+    	android:layout_height="@dimen/glass_card_body_height"
+        android:layout_marginLeft="@dimen/glass_card_margin"
+        android:layout_marginTop="@dimen/glass_card_margin"
+        android:layout_marginRight="@dimen/glass_card_margin"
+    >
+    
+	    <LinearLayout
+	        android:id="@+id/notif_header"
+		    android:layout_width="match_parent"
+		    android:layout_height="40dip"
+		    android:orientation="horizontal"
+		    android:layout_marginBottom="12dip"
+		    >
+		    
+		    <RelativeLayout
+	        android:layout_width="40dip"
+	        android:layout_height="40dip"
+	        android:background="#333333"
+	        android:layout_marginRight="16dip"
+	        >
+	
+		        <ImageView
+		            android:layout_width="30dip"
+		            android:layout_height="wrap_content"
+		            android:layout_centerHorizontal="true"
+		            android:layout_centerVertical="true"
+		            android:alpha="0.3"
+		            android:src="@drawable/ic_launcher" />
+	        
+	        </RelativeLayout>
+	        
+		    <TextView
+		        android:id="@+id/notif_subject"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_gravity="center_vertical"
+		        android:ellipsize="end"
+            	android:singleLine="true"
+		        android:textAppearance="?android:attr/textAppearanceSmall" />
+	        
+		</LinearLayout>
+	     
+	    <TextView
+	        android:id="@+id/notif_message"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/notif_header"
+	        android:ellipsize="end" />
+      
+	</RelativeLayout>	   
+	    
+    <LinearLayout
+        android:id="@+id/footer_container"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-     
-      <TextView
-        android:id="@+id/notif_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_marginLeft="@dimen/glass_card_margin"
+        android:layout_marginBottom="@dimen/glass_card_footer_margin"
+        android:layout_marginRight="@dimen/glass_card_margin"
+        >
 
-</LinearLayout>
+        <!--
+             The footer view will grow to fit as much content as possible while the
+             timestamp view keeps a fixed width. If the footer text is too long, it
+             will be ellipsized with a 40px margin between it and the timestamp.
+        -->
+
+        <TextView
+            android:id="@+id/notif_time"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            />
+
+    </LinearLayout>
+    
+
+</FrameLayout>
