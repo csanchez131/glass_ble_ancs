@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">iPhone notifications</string>
+    <string name="app_name">notifications</string>
     <string name="searching_ble">Searching for iPhones</string>
     <string name="searching_ble_tip">Ensure Bluetooth is enabled and broadcasting ANCS</string>
     
