@@ -35,6 +35,7 @@ public class BLEservice extends Service implements ANCSParser.onIOSNotification{
 
     private LiveCard mLiveCard;
     private RemoteViews mLiveCardView;
+    private AudioManager audio;
 	
 	private static final String TAG="BLEservice]]";
 	private final IBinder mBinder = new MyBinder();
@@ -98,6 +99,10 @@ public class BLEservice extends Service implements ANCSParser.onIOSNotification{
 			addr = intent.getStringExtra("addr");
 		}
 		
+		// get audio manager
+		audio = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+		
+		// set up live card
 		if (mLiveCard == null) {
 			
 			// Get an instance of a live card
@@ -168,7 +173,7 @@ public class BLEservice extends Service implements ANCSParser.onIOSNotification{
         // Always call setViews() to update the live card's RemoteViews.
         mLiveCard.setViews(mLiveCardView);
         
-        AudioManager audio = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        // Play sound effect
         audio.playSoundEffect(Sounds.SUCCESS);
 	}
 
