@@ -5,6 +5,12 @@ Branched from [orient33/ble_ancs](https://github.com/orient33/ble_ancs)
 
 Google Glass GDK app to receive iPhone notifications using Apple Notification Center Services over Bluetooth LE (a.k.a. magic)
 
+![](http://longzheng.github.io/glass_ble_ancs/screenshot1.png)
+
+![](http://longzheng.github.io/glass_ble_ancs/screenshot2.png)
+
+![](http://longzheng.github.io/glass_ble_ancs/screenshot3.png)
+
 **Current state**
 - Creates Bluetooth LE pairing with iPhone
 - Connects to ANCS via BluetoothGATT
