@@ -7,6 +7,8 @@
     
     <string name="error_ble_not_supported">Error: Bluetooth LE not supported</string>
     
+    <string name="tap_to_pair">Tap to pair</string>
+    
     <string name="auto">自动连接</string>
     <string name="scan">重新扫描</string>
     <string name="stop_scan">停止扫描</string>

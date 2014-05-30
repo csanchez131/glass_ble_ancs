@@ -18,10 +18,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.google.glass.widget.SliderView;
 
@@ -35,7 +37,7 @@ public class Devices extends Activity {
 	public static final String BleAutoKey="ble_auto_connect";
 	private BluetoothAdapter mBluetoothAdapter;
 	private boolean mLEscaning = false;
-	private List<BluetoothDevice> mList = new ArrayList<BluetoothDevice>();
+	private List<BluetoothDevice> mBluetoothList = new ArrayList<BluetoothDevice>();
 	private List<Card> bluetoothCards = new ArrayList<Card>();
     private CardScrollView mBluetoothCardScrollView;
     private BluetoothCardScrollAdapter mBluetoothCardScrollAdapter;
@@ -49,7 +51,7 @@ public class Devices extends Activity {
 				@Override
 				public void run() {
 					boolean found = false;
-					for (BluetoothDevice dev : mList) {
+					for (BluetoothDevice dev : mBluetoothList) {
 						// verify if this is a new BLE device
 						if (dev.getAddress().equals(device.getAddress())) {
 							found = true;
@@ -68,7 +70,7 @@ public class Devices extends Activity {
 						}
 						
 						// add to list of BLE devices
-						mList.add(device);
+						mBluetoothList.add(device);
 						
 						// add device to BLE cards
 						Card card = new Card(getApplicationContext());
@@ -110,7 +112,7 @@ public class Devices extends Activity {
 		}
 		
 		// clear list of BLE devices
-		mList.clear();
+		mBluetoothList.clear();
 		
 		// set up scroll view of Bluetooth device cards
 		mBluetoothCardScrollView = new CardScrollView(this);
@@ -163,7 +165,7 @@ public class Devices extends Activity {
 			scan(false);
 	    	
 			// get BLE device
-	    	BluetoothDevice dev = mList.get(position);
+	    	BluetoothDevice dev = mBluetoothList.get(position);
 
 	    	// load connect class
 			Intent intent = new Intent(getApplicationContext(),  BLEConnect.class);
@@ -188,40 +190,30 @@ public class Devices extends Activity {
 
         @Override
         public int getPosition(Object item) {
-            return bluetoothCards.indexOf(item);
+            return mBluetoothList.indexOf(item);
         }
 
         @Override
         public int getCount() {
-            return bluetoothCards.size();
+            return mBluetoothList.size();
         }
 
         @Override
         public Object getItem(int position) {
-            return bluetoothCards.get(position);
-        }
-
-        /**
-         * Returns the amount of view types.
-         */
-        @Override
-        public int getViewTypeCount() {
-            return Card.getViewTypeCount();
-        }
-
-        /**
-         * Returns the view type of this card so the system can figure out
-         * if it can be recycled.
-         */
-        @Override
-        public int getItemViewType(int position){
-            return bluetoothCards.get(position).getItemViewType();
+            return mBluetoothList.get(position);
         }
 
         @Override
-        public View getView(int position, View convertView,
-                ViewGroup parent) {
-            return  bluetoothCards.get(position).getView(convertView, parent);
+        public View getView(int position, View convertView, ViewGroup parent) {
+        	BluetoothDevice item = mBluetoothList.get(position);
+        	View view = convertView;
+			if (view == null) // no view to re-use, create new
+				view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.ble_device, parent, false);
+			
+			 ((TextView)view.findViewById(R.id.device_name)).setText(item.getName());
+			 ((TextView)view.findViewById(R.id.device_addr)).setText(item.getAddress());
+			
+        	return  view;
         }
     }
 }
