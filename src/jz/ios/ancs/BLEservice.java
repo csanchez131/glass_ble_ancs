@@ -170,18 +170,21 @@ public class BLEservice extends Service implements ANCSParser.onIOSNotification{
 		Devices.log(noti.title);
 		Devices.log(noti.message);
 		
-		Date date = null;
-		SimpleDateFormat old_date_format = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
-		SimpleDateFormat new_date_format = new SimpleDateFormat("hh:mm a");
-		try {
-			date = old_date_format.parse(noti.date);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		
 		mLiveCardView.setTextViewText(R.id.notif_subject, noti.title);
         mLiveCardView.setTextViewText(R.id.notif_message, noti.message);
-        mLiveCardView.setTextViewText(R.id.notif_time, new_date_format.format(date));
+        
+        if (noti.date != null && !noti.date.isEmpty())
+        {
+        	Date date = null;
+    		SimpleDateFormat old_date_format = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
+    		SimpleDateFormat new_date_format = new SimpleDateFormat("hh:mm a");
+    		try {
+    			date = old_date_format.parse(noti.date);
+    		} catch (ParseException e) {
+    			e.printStackTrace();
+    		}
+        	mLiveCardView.setTextViewText(R.id.notif_time, new_date_format.format(date));
+        }
         
         // Always call setViews() to update the live card's RemoteViews.
         mLiveCard.setViews(mLiveCardView);
